@@ -24,23 +24,22 @@
 
 
         <ImageView
+            android:id="@+id/day_img"
             android:layout_width="375dp"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:cropToPadding="false"
-            android:scaleType="centerCrop"
-            android:src="@drawable/morning" />
+            android:scaleType="centerCrop" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/wish"
                 android:layout_width="342dp"
                 android:layout_height="65dp"
                 android:fontFamily="@font/questrial_regular"
-                android:text="Hello, Good Morning"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="#FFFFFF"
                 android:textSize="34sp"
@@ -52,8 +51,26 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.141" />
 
+            <TextView
+                android:id="@+id/time_disp"
+                android:layout_width="150dp"
+                android:layout_height="80dp"
+                android:fontFamily="@font/questrial_regular"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="#FFFFFF"
+                android:textSize="60sp"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.836" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>/>
+
+
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -70,7 +87,8 @@
         <ImageView
             android:layout_width="174dp"
             android:layout_height="82dp"
-android:src="@drawable/bg3_color"/>
+            android:src="@drawable/bg3_color"/>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -86,9 +104,10 @@ android:src="@drawable/bg3_color"/>
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.8"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:gravity="center"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -119,27 +138,27 @@ android:src="@drawable/bg3_color"/>
                 android:layout_width="160dp"
                 android:layout_height="30dp"
                 android:fontFamily="@font/questrial_regular"
+                android:gravity="center"
                 android:text="Choose Language"
+                android:textColor="#ffffff"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#ffffff"
                 app:layout_constraintBottom_toTopOf="@+id/lang_opt"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.75"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.595" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/lang_opt"
-                android:layout_width="142dp"
+                android:layout_width="159dp"
                 android:layout_height="52dp"
-                android:spinnerMode="dropdown"
                 android:popupBackground="@drawable/custom_button"
-
+                android:spinnerMode="dropdown"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.875"
+                app:layout_constraintHorizontal_bias="1.1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.972" />
@@ -165,7 +184,7 @@ android:src="@drawable/bg3_color"/>
             android:id="@+id/img"
             android:layout_width="170dp"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitXY" />
     </androidx.cardview.widget.CardView>
 
     <Button

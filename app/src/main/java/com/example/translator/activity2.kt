@@ -3,6 +3,7 @@ package com.example.translator
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.AdapterView
@@ -15,6 +16,7 @@ import com.chaquo.python.Python
 import com.example.translator.R.layout.layout
 import kotlinx.android.synthetic.main.layout.*
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -24,12 +26,21 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     var totrans = ""
     var tolang_code = ""
     var tolang = ""
+    val handler = Handler()
 
 
     //Text To speech
     lateinit var mTTs:TextToSpeech
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        handler.postDelayed(object:Runnable{
+            //doSomethingHere()
+            override fun run() {
+                setting_time()
+                handler.postDelayed(this, 10)
+            }
+        }, 0)
 
 
         super.onCreate(savedInstanceState)
@@ -135,6 +146,34 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
         val python = Python.getInstance()
         val pythonFile = python.getModule("final")
         return pythonFile.callAttr("lang_script", tolang).toString()
+    }
+
+    private fun setting_time(){
+        var time = SimpleDateFormat("HH:mm", Locale.US).format(Date())
+        var a = SimpleDateFormat("aa", Locale.US).format(Date())
+        time_disp.text = time
+        if(time >= "12:00" && a=="AM")
+        {
+            wish.text = "Hello,Good Afternoon"
+            day_img.setImageResource(R.drawable.afternoon)
+        }
+        else if(time >= "06:00" && a=="PM")
+        {
+            wish.text = "Hello,Good Evening"
+            day_img.setImageResource(R.drawable.evening)
+        }
+        else if(time >= "09:00" && a=="PM")
+        {
+            wish.text = "Hello,Good Night"
+            day_img.setImageResource(R.drawable.night)
+        }
+        else if(time >= "06:00" && a=="AM")
+        {
+            wish.text = "Hello,Good Morning"
+            day_img.setImageResource(R.drawable.morning)
+        }
+
+
     }
 
 }
