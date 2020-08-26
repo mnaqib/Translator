@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">translator</string>
+    <string name="play">play</string>
+    <string-array name="Languages">
+        <item>HINDI</item>
+        <item>BENGALI</item>
+        <item>GUJARATI</item>
+        <item>KANNADA</item>
+        <item>MALAYALAM</item>
+        <item>MARATHI</item>
+        <item>TAMIL</item>
+        <item>TELUGU</item>
+        <item>PUNJABI</item>
+    </string-array>
+</resources>
