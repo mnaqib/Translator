@@ -1,8 +1,6 @@
 
 from googletrans import Translator
 
-# In which we want to convert, short
-# form of hindi
 
 def input(a,b):
     get_sentence = a
@@ -40,7 +38,8 @@ def lang_key(c):
         'TAMIL' : 'ta',
         'TELUGU' : 'te',
         'MALAYALAM' : 'ml',
-        'GUJARATI' : 'gu'
+        'GUJARATI' : 'gu',
+        "ODIA" : 'or'
     }
     x = country.get(c)
     return x
@@ -55,7 +54,8 @@ def lang_script(c):
         'TAMIL' : 'தமிழ்',
         'TELUGU' : 'తెలుగు',
         'MALAYALAM' : 'മലയാളം',
-        'GUJARATI' : 'ગુજરાતી'
+        'GUJARATI' : 'ગુજરાતી',
+        'ODIA' :'ଓଡ଼ିଆ'
     }
     x = country.get(c)
     return x
