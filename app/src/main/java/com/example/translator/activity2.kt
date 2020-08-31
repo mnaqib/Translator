@@ -4,11 +4,13 @@ import MyBounceInterpolator
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
@@ -33,9 +35,10 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     var flag = true
     var t = ""
     var connected = false
-    private lateinit var right_flip:AnimatorSet
+    private lateinit var fade:AnimatorSet
     private lateinit var left_flip:AnimatorSet
     var anim = false
+    private val Recognizer_Result = 1
 
     //Text To speech
     lateinit var mTTs:TextToSpeech
@@ -79,15 +82,14 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
         }
 
 
-        //for card flip animation
+        //for card flip animation and fade animation
         val scale:Float = applicationContext.resources.displayMetrics.density
         img_card.cameraDistance = 8000 * scale
         lang_name_card.cameraDistance = 8000 * scale
-        spinner_card.cameraDistance = 8000 * scale
-        right_flip = AnimatorInflater.loadAnimator(applicationContext, R.animator.card_flip) as AnimatorSet
+        fade = AnimatorInflater.loadAnimator(applicationContext, R.animator.fade_card) as AnimatorSet
         left_flip = AnimatorInflater.loadAnimator(applicationContext, R.animator.back_flip) as AnimatorSet
         left_flip.setTarget(lang_name_card)
-        right_flip.setTarget(img_card)
+        fade.setTarget(img_card)
 
     }
 
@@ -145,7 +147,7 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
                 }
             }
 
-        }, 400)
+        }, 100)
 
 
 
@@ -158,7 +160,7 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     fun onClick(view: View) {
         var hand = handler
         totrans = this.inputtrans.text.toString()
-        var myAnim = loadAnimation(applicationContext, R.anim.bubble);
+        var myAnim = loadAnimation(applicationContext, R.anim.bubble)
         val interpolator = MyBounceInterpolator(0.15, 15.00)
         myAnim.interpolator = interpolator
         if (totrans == "") {
@@ -299,7 +301,7 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     private fun animation() {
         var t = Thread {
             runOnUiThread {
-                right_flip.start()
+                fade.start()
                 left_flip.start()
             }
         }
@@ -307,7 +309,25 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
         t.priority = Thread.MAX_PRIORITY
     }
 
+    fun speech(view: View) {
+        var myAnim = loadAnimation(applicationContext, R.anim.bubble);
+        val interpolator = MyBounceInterpolator(0.15, 15.00)
+        mic.startAnimation(myAnim)
+        val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        speechIntent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "speech to text")
+        startActivityForResult(speechIntent, Recognizer_Result)
+    }
+
+    override fun onActivityResult(requestcode: Int, resultcode: Int, data: Intent?) {
+        if (requestcode == Recognizer_Result && resultcode == RESULT_OK) {
+            val matches = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            inputtrans.setText(matches!![0].toString())
+        }
+        super.onActivityResult(requestcode, resultcode, data)
+    }
+
 }
-
-
-
