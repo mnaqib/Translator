@@ -301,30 +301,45 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
-                android:id="@+id/inputtrans"
-                android:layout_width="350dp"
-                android:layout_height="80dp"
-                android:fontFamily="@font/questrial_regular"
-                android:hint="Enter the text to translate"
-                android:textColor="#000000"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:background="@null"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.518"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.453"
-                android:layout_centerInParent="true"
-                android:ellipsize="start"
-                android:gravity="center"
-                android:inputType="textCapWords|textPersonName"
-                android:singleLine="true"/>
+         <EditText
+             android:id="@+id/inputtrans"
+             android:layout_width="280dp"
+             android:layout_height="80dp"
+             android:layout_centerInParent="true"
+             android:background="@null"
+             android:ellipsize="start"
+             android:fontFamily="@font/questrial_regular"
+             android:gravity="center"
+             android:hint="Enter the text to translate"
+             android:inputType="textCapWords|textPersonName"
+             android:singleLine="true"
+             android:textColor="#000000"
+             android:textSize="20sp"
+             android:textStyle="bold"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.18"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+         <androidx.appcompat.widget.AppCompatImageButton
+             android:id="@+id/mic"
+             android:layout_width="50dp"
+             android:layout_height="50dp"
+             android:background="@drawable/custom_button"
+             android:onClick="speech"
+             android:scaleType="fitXY"
+             android:src="@drawable/mic"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.95"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.AppCompatImageButton>
+
+     </androidx.constraintlayout.widget.ConstraintLayout>
      </androidx.cardview.widget.CardView>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

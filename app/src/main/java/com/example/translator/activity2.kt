@@ -1,11 +1,15 @@
 package com.example.translator
 
 import MyBounceInterpolator
+import android.Manifest
 import android.animation.AnimatorInflater
 import android.animation.AnimatorSet
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
@@ -18,9 +22,14 @@ import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.chaquo.python.Python
 import com.example.translator.R.layout.layout
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.layout.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,18 +41,33 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     private var tolang_code = ""
     private var tolang = ""
     val handler = Handler()
+    val l_handler = Handler()
     var flag = true
     var t = ""
     var connected = false
-    private lateinit var fade:AnimatorSet
-    private lateinit var left_flip:AnimatorSet
+    private lateinit var fade_img:AnimatorSet
+    private lateinit var fade_script:AnimatorSet
     var anim = false
     private val Recognizer_Result = 1
-
     //Text To speech
     lateinit var mTTs:TextToSpeech
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    var state = ""
+    var state_check = ""
+
+    companion object {
+        const val REQUEST_CHECK_SETTINGS = 999
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        //location
+        createLocationRequest()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+
 
         handler.postDelayed(object : Runnable {
             //doSomethingHere()
@@ -81,15 +105,28 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
 
         }
 
+        //setting location while opening app
+        set_lang(spinner)
 
-        //for card flip animation and fade animation
-        val scale:Float = applicationContext.resources.displayMetrics.density
-        img_card.cameraDistance = 8000 * scale
-        lang_name_card.cameraDistance = 8000 * scale
-        fade = AnimatorInflater.loadAnimator(applicationContext, R.animator.fade_card) as AnimatorSet
-        left_flip = AnimatorInflater.loadAnimator(applicationContext, R.animator.back_flip) as AnimatorSet
-        left_flip.setTarget(lang_name_card)
-        fade.setTarget(img_card)
+
+        //for card fade animation
+        fade_img = AnimatorInflater.loadAnimator(applicationContext, R.animator.fade_card) as AnimatorSet
+        fade_script = AnimatorInflater.loadAnimator(applicationContext, R.animator.fade_card) as AnimatorSet
+        fade_script.setTarget(lang_name_card)
+        fade_img.setTarget(img_card)
+
+        //to check location periodically
+        l_handler.postDelayed(object : Runnable {
+            //doSomethingHere()
+            override fun run() {
+                location()
+                if (state != state_check) {
+                    state_check = state
+                    set_lang(spinner)
+                }
+                l_handler.postDelayed(this, 2000)
+            }
+        }, 0)
 
     }
 
@@ -157,6 +194,7 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
         // Another interface callback
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onClick(view: View) {
         var hand = handler
         totrans = this.inputtrans.text.toString()
@@ -173,6 +211,7 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
                 if (flag || totrans != t) {
                     runthread()
                     runthread1()
+                    mTTs.language = Locale.forLanguageTag(tolang_code)
                 } else Toast.makeText(
                     this,
                     "Text already Translated, Choose another Language",
@@ -188,27 +227,24 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
 
     private fun gettranslatedtext():String{
         t=totrans
-        tolang_code = getcountrycode()
+        tolang_code = getlangcode()
         val python = Python.getInstance()
         val pythonFile = python.getModule("final")
         return pythonFile.callAttr("input", totrans, tolang_code).toString()
     }
 
-    private fun getcountrycode():String{
+    private fun getlangcode():String{
         val python = Python.getInstance()
         val pythonFile = python.getModule("final")
         return pythonFile.callAttr("lang_key", tolang).toString()
     }
+
 
     fun open(view: View) {
 
         var myAnim = loadAnimation(this, R.anim.bubble);
         val interpolator = MyBounceInterpolator(0.1, 15.00)
         myAnim.interpolator = interpolator
-        var a = 1.0f
-        if(tolang=="KANNADA" || tolang=="TAMIL" || tolang=="TELUGU" || tolang=="PUNJABI" || tolang=="MALAYALAM" || tolang=="BENGALI")
-            a=0.1f
-        mTTs.setSpeechRate(a)
         play.startAnimation(myAnim)
         mTTs.speak(tospeak, TextToSpeech.QUEUE_FLUSH, null)
     }
@@ -301,8 +337,8 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
     private fun animation() {
         var t = Thread {
             runOnUiThread {
-                fade.start()
-                left_flip.start()
+                fade_img.start()
+                fade_script.start()
             }
         }
         t.start()
@@ -329,5 +365,105 @@ class activity2 : AppCompatActivity() , AdapterView.OnItemSelectedListener {
         }
         super.onActivityResult(requestcode, resultcode, data)
     }
+
+
+    public fun createLocationRequest() {
+        val locationRequest = LocationRequest.create()?.apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = locationRequest?.let {
+            LocationSettingsRequest.Builder()
+                .addLocationRequest(it)
+        }
+
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder?.build())
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            // All location settings are satisfied. The client can initialize
+            // location requests here.
+            // ...
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException){
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    exception.startResolutionForResult(this@activity2,
+                        REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
+    fun location(){
+
+        if (ActivityCompat.checkSelfPermission(
+                this@activity2,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        {
+            fusedLocationClient?.getLastLocation()?.addOnCompleteListener { task ->
+                //Initialize location
+                val location = task.result
+                if (location != null) {
+                    try {
+                        //Initialize geocoder
+                        val geocoder = Geocoder(this@activity2, Locale.getDefault())
+
+                        //Initialize address list
+                        val addresses = geocoder.getFromLocation(
+                            location.latitude,
+                            location.longitude,
+                            1
+                        )
+                        state = addresses[0].adminArea
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        else {
+            ActivityCompat.requestPermissions(
+                this@activity2,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                44
+            )
+        }
+    }
+
+    private fun set_lang(spinner: Spinner) {
+        if (state == "Karnataka")
+            spinner.setSelection(3)
+        else if (state == "Maharashtra")
+            spinner.setSelection(5)
+        else if (state == "Odisha")
+            spinner.setSelection(6)
+        else if (state == "Kerala")
+            spinner.setSelection(4)
+        else if (state == "Tamil Nadu")
+            spinner.setSelection(8)
+        else if (state == "Andhra Pradesh" || state == "Telangana")
+            spinner.setSelection(9)
+        else if (state == "Gujarat")
+            spinner.setSelection(1)
+        else if (state == "West Bengal")
+            spinner.setSelection(0)
+        else if (state == "Punjab")
+            spinner.setSelection(7)
+        else
+            spinner.setSelection(2)
+    }
+
+
 
 }
